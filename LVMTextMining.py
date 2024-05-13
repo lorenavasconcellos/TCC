@@ -1,7 +1,5 @@
 import os
-import PyPDF2
 import nltk
-import re
 from nltk.tokenize import word_tokenize
 from nltk.corpus import stopwords
 from nltk.stem import WordNetLemmatizer
@@ -15,6 +13,7 @@ nltk.download('punkt')
 nltk.download('stopwords')
 nltk.download('wordnet')
 
+# Leitura dos pdfs
 def pdf_reader(folder_path):
     texts = []
     for file_name in os.listdir(folder_path):
@@ -29,11 +28,12 @@ def pdf_reader(folder_path):
             texts.append(text)
     return texts
 
+# Mineiração de texto
 def process_text(text_pdf):
     # Tokenização
     tokens = word_tokenize(text_pdf.lower())
 
-     # Remove stop words em português, em inglês e stopwords personalizadas
+    # Remove stop words em português, em inglês e stopwords personalizadas
     filtered_tokens = [token for token in tokens if token not in stopwords.words('portuguese') and token not in stopwords.words('english') and token not in custom_stopwords]
 
     # Remove pontuações
@@ -52,15 +52,17 @@ def process_text(text_pdf):
 
     return processed_text
 
+# Seleciona as 50 palavras mais citadas em cada pdf
 def get_top_words_per_pdf(texts):
     top_words_per_pdf = []
     for text in texts:
         processed_text = process_text(text)
         word_counts = Counter(processed_text.split())
-        top_words = word_counts.most_common(20)
+        top_words = word_counts.most_common(50)
         top_words_per_pdf.append(top_words)
     return top_words_per_pdf
 
+# Gera um gráfico com as palavras
 def create_dataframe(top_words_per_pdf):
     data = {'PDF': [], 'Palavra': [], 'Frequência': []}
     for i, top_words in enumerate(top_words_per_pdf):
@@ -70,12 +72,14 @@ def create_dataframe(top_words_per_pdf):
             data['Frequência'].append(freq)
     return pd.DataFrame(data)
 
+# Exporta o gráfico como arquivo csv
 def export_dataframe_to_csv(df, filename):
     df.to_csv(filename, index=False)
 
+# Palavras personalizadas para serem excluídas 
 custom_stopwords = ["estudo", "estudos", "pesquisa", "pesquisas", "trabalho", "artigo", "artigos", "autor", "autores", "extensão", "sobre", "projeto"]
 
-folder_path_pdf = "C:\\Users\\Lorena Vasconcellos\\Documents\\Desenvolvimento\\TCC\\projetoIA\\pdfs"
+folder_path_pdf = "C:\\Users\\Lorena Vasconcellos\\Documents\\Desenvolvimento\\TCC\\TCC\\Documentos\\pdfs"
 
 texts = pdf_reader(folder_path_pdf)
 
