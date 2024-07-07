@@ -8,7 +8,6 @@ def pdf_reader(file_path):
         text = ""
         for page_number in range(len(pdf_reader.pages)):
             page = pdf_reader.pages[page_number]
-            # No need to decode, just use the extracted text directly
             text += page.extract_text()
     return text
 
