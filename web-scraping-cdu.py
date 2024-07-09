@@ -2,6 +2,10 @@ import pandas as pd
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.by import By
+import nltk
+from nltk.corpus import stopwords
+
+nltk.download('stopwords')
 
 service = Service()
 options = webdriver.ChromeOptions()
@@ -17,7 +21,11 @@ results = []
 
 for element in node_elements:
     
-    node_title = element.get_attribute('title')
+    # Pegar os títulos de cada elemento e separar em palavras
+    node_title_words = element.get_attribute('title').split()
+
+    # Remoção das stopwords
+    filtered_words = [word for word in node_title_words if word not in stopwords.words('portuguese')]
     
     # Encontrar todos os elementos que contém os códigos de cada nó
     nodetag_elements = element.find_elements(By.CLASS_NAME, 'nodetag')
@@ -25,11 +33,11 @@ for element in node_elements:
         
         nodetag_value = nodetag_element.get_attribute('innerHTML')
         
-        results.append({'node_title': node_title, 'nodetag_value': nodetag_value})
-
+        for word in filtered_words:
+            results.append({'area': word, 'code': nodetag_value})
 
 df = pd.DataFrame(results)
 print(df)
-df.to_csv('area-computação-cdu.csv', index=False)
+df.to_csv('area-computacao-cdu.csv', index=False)
 
 driver.quit()
